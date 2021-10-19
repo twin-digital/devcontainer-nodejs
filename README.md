@@ -1,2 +1,3 @@
-# devcontainer-nodejs
-Twin Digital's base development container for nodejs projects.
+# Nodejs Developpment Container
+
+Twin Digital's development container for nodejs projects.
