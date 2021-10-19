@@ -1,0 +1,52 @@
+# *** DO NOT EDIT
+# *** This workflow is maintained centrally via the twin-digital/common-config repository.
+#
+# Changes to this file will be overwritten.
+
+name: Publish
+
+on:
+  workflow_run:
+    branches: [main]
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  publish:
+    if: github.event.workflow_run.conclusion == 'success'
+    name: Publish Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - id: load-image
+        name: Load image
+        uses: twin-digital/action-load-container-image-from-workflow@v1
+        with:
+          commit: ${{ github.event.workflow_run.head_sha }}
+          workflow: 'ci.yml'
+
+      - name: Login to ghcr.io
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: release
+        name: Create release
+        uses: twin-digital/action-create-release@v1
+
+      - name: Tag and push image
+        run: |
+          docker tag \
+            "${{ steps.load-image.outputs.tag }}" \
+            "${{ steps.load-image.outputs.repository }}:${{ steps.release.outputs.version }}"
+          docker tag \
+            "${{ steps.load-image.outputs.tag }}" \
+            "${{ steps.load-image.outputs.repository }}:latest"
+          docker push --all-tags "${{ steps.load-image.outputs.repository }}"
+        shell: bash

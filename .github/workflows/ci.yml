@@ -1,0 +1,43 @@
+# *** DO NOT EDIT
+# *** This workflow is maintained centrally via the twin-digital/common-config repository.
+#
+# Changes to this file will be overwritten.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Image
+        uses: twin-digital/action-build-container-image@v1
+        with:
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          repository: ${{ github.repository }}
+          username: ${{ github.actor }}
+
+  validate:
+    name: Validate Image
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+          
+      - id: load-image
+        name: Load image
+        uses: twin-digital/action-load-container-image@v1
+
+      - name: Validate image
+        run: |
+          docker image inspect "${{ steps.load-image.outputs.tag }}"
+          docker run --rm --entrypoint /bin/bash "${{ steps.load-image.outputs.tag }}" -c "$(cat container/tests.sh)"
