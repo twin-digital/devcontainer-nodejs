@@ -4,7 +4,7 @@ FROM ghcr.io/twin-digital/devcontainer-base:main
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 
 ENV NVM_DIR /home/devuser/.nvm
-ENV DEFAULT_NODE_VERSION 12
+ENV DEFAULT_NODE_VERSION 14
 
 # install nvm, node, npm, and yarn
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash \
