@@ -16,7 +16,7 @@ jobs:
     name: Build Image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build Image
         uses: twin-digital/action-build-container-image@v1
@@ -31,7 +31,7 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
           
       - id: load-image
         name: Load image
